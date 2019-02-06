@@ -6,6 +6,7 @@ import (
 	ui "github.com/gizak/termui"
 	"github.com/gizak/termui/widgets"
 	"github.com/kr/pty"
+	"github.com/nsf/termbox-go"
 	"io"
 	"log"
 	"os"
@@ -75,11 +76,13 @@ func renderTunnels(tunnels []*Tunnel) []string {
 }
 
 func render(as *AppState) {
+	width, height := ui.TerminalDimensions()
 
 	l := widgets.NewList()
+	l.Border = false
 	l.SelectedRow = 0
-	l.SelectedRowStyle = ui.Style{Fg: ui.ColorYellow, Bg: l.TextStyle.Bg}
-	l.SetRect(0, 0, 50, 8)
+	l.SelectedRowStyle = ui.Style{Bg: ui.ColorWhite, Modifier: ui.ModifierClear}
+	l.SetRect(0, -1, width, height)
 
 	l.Rows = renderTunnels(as.GetTunnels())
 	ui.Render(l)
@@ -135,13 +138,13 @@ func openTunnel(tunnel *Tunnel)  {
 	ui.Clear()
 	ui.Render()
 
+	_= termbox.Sync()
+
 	tty, err := pty.Start(cmd)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer func() {
-		tty.Close()
-	}()
+	defer func() { _ = tty.Close() }()
 
 	go func() {
 		io.Copy(os.Stdout, tty)
@@ -155,6 +158,8 @@ func openTunnel(tunnel *Tunnel)  {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	_= termbox.Sync()
 }
 
 
