@@ -61,10 +61,12 @@ func printHelp() {
 
 func renderTunnelString(tunnel *Tunnel) string {
 	stateColor := "red"
+	stateShape := "\u25A3"
 	if tunnel.State == "Open" {
 		stateColor = "green"
+		stateShape = "\u25C8"
 	}
-	return "[\u25A3](fg:" + stateColor + ") " + tunnel.Host + " " + tunnel.Forward
+	return "[" + stateShape + "](fg:" + stateColor + ") " + tunnel.Host + " " + tunnel.Forward
 }
 
 func renderTunnels(tunnels []*Tunnel) []string {
@@ -73,6 +75,15 @@ func renderTunnels(tunnels []*Tunnel) []string {
 		rows = append(rows, renderTunnelString(tun))
 	}
 	return rows
+}
+
+func reloadSelectedStyle(as *AppState, l *widgets.List) {
+	selected := as.GetTunnels()[l.SelectedRow]
+	if selected.State == "Open" {
+		l.SelectedRowStyle = ui.Style{Bg: ui.ColorGreen}
+	} else {
+		l.SelectedRowStyle = ui.Style{Bg: ui.ColorRed}
+	}
 }
 
 func render(as *AppState) {
@@ -97,10 +108,12 @@ func render(as *AppState) {
 
 		case "k":
 			l.ScrollUp()
+			reloadSelectedStyle(as, l)
 			ui.Render(l)
 
 		case "j":
 			l.ScrollDown()
+			reloadSelectedStyle(as, l)
 			ui.Render(l)
 
 		case "x":
@@ -109,6 +122,7 @@ func render(as *AppState) {
 				err := selected.Proc.Kill()
 				if err != nil {}
 				as.ReloadTunnels()
+				reloadSelectedStyle(as, l)
 				l.Rows = renderTunnels(as.GetTunnels())
 				ui.Clear()
 				ui.Render(l)
@@ -119,6 +133,7 @@ func render(as *AppState) {
 			if selected.State == "Closed" {
 				openTunnel(selected)
 				as.ReloadTunnels()
+				reloadSelectedStyle(as, l)
 				l.Rows = renderTunnels(as.GetTunnels())
 				ui.Clear()
 				ui.Render(l)
@@ -126,6 +141,7 @@ func render(as *AppState) {
 
 		case "r":
 			as.ReloadTunnels()
+			reloadSelectedStyle(as, l)
 			l.Rows = renderTunnels(as.GetTunnels())
 			ui.Render(l)
 		}
