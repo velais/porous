@@ -4,10 +4,7 @@ import (
 	"flag"
 	"fmt"
 	ui "github.com/gizak/termui"
-	"github.com/kr/pty"
 	"github.com/nsf/termbox-go"
-	"io"
-	"log"
 	"os"
 	"os/exec"
 )
@@ -128,26 +125,18 @@ func openTunnel(tunnel *Tunnel) {
 	ui.Render()
 	_ = termbox.Sync()
 
-	tty, err := pty.Start(cmd)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
 	defer func() {
-		_ = tty.Close()
+		ui.Clear()
+		ui.Render()
 		_ = termbox.Sync()
-		//_ = os.Stdin.Close()
 	}()
 
-	go func() {
-		io.Copy(os.Stdout, tty)
-		io.Copy(os.Stderr, tty)
-	}()
-	go func() {
-		io.Copy(tty, os.Stdin)
-	}()
-
-	err = cmd.Wait()
+	err := cmd.Run()
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
 }
