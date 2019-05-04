@@ -113,7 +113,7 @@ func render(as *AppState) {
 		}
 
 		if e.Type == ui.ResizeEvent {
-			ui.Clear()
+			width, height = ui.TerminalDimensions()
 			l.SetRect(0, -1, width, height)
 			l.Rows = as.GetTunnels()
 			ui.Render(l)
