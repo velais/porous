@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-
 )
 
 type AppState struct {
@@ -14,15 +13,15 @@ type AppState struct {
 }
 
 type Tunnel struct {
-	Host string
-	Hostname string
-	Forward string
-	State string
-	Proc  *process.Process
-
+	Host        string
+	Hostname    string
+	Forward     string
+	ForwardKind string
+	State       string
+	Proc        *process.Process
 }
 
-func NewAppState() *AppState  {
+func NewAppState() *AppState {
 	as := AppState{
 		tunnels: load(),
 	}
@@ -63,12 +62,11 @@ func load() []*Tunnel {
 				localFwd, err := cfg.Get(alias, "LocalForward")
 				remoteFwd, err := cfg.Get(alias, "RemoteForward")
 
-
 				proc := FindProcs(procs, alias)
 				tunnel := Tunnel{
-					Host: alias,
+					Host:     alias,
 					Hostname: hostname,
-					Forward: localFwd + remoteFwd,
+					Forward:  localFwd + remoteFwd,
 				}
 
 				if proc != nil {
@@ -78,7 +76,6 @@ func load() []*Tunnel {
 					tunnel.State = "Closed"
 				}
 
-
 				tunnels = append(tunnels, &tunnel)
 			}
 		}
@@ -86,23 +83,3 @@ func load() []*Tunnel {
 
 	return tunnels
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -10,6 +10,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mitchellh/go-ps v0.0.0-20170309133038-4fdf99ab2936
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
+	github.com/nsf/termbox-go v0.0.0-20190121233118-02980233997d
 	github.com/pelletier/go-buffruneio v0.2.0 // indirect
 	github.com/shirou/gopsutil v0.0.0-20190131151121-071446942108
 	github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 // indirect
