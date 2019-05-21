@@ -3,7 +3,7 @@ module github.com/velais/porous
 require (
 	github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6 // indirect
 	github.com/cjbassi/drawille-go v0.1.0 // indirect
-	github.com/gizak/termui v0.0.0-20190205041627-0278568ed80a
+	github.com/gizak/termui/v3 v3.0.0
 	github.com/go-ole/go-ole v1.2.2 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20180830205328-81db2a75821e
 	github.com/mattn/go-runewidth v0.0.4 // indirect

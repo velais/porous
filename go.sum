@@ -5,8 +5,8 @@ github.com/cjbassi/drawille-go v0.1.0 h1:BN63E/DUHclRI+iPOUeP6f+DWRnvUwZxqEkiugj
 github.com/cjbassi/drawille-go v0.1.0/go.mod h1:vjcQJUZJYD3MeVGhtZXSMnCHfUNZxsyYzJt90eCYxK4=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/gizak/termui v0.0.0-20190205041627-0278568ed80a h1:RFxADEnd0kGBLxHNdZmh8JqFUsx60zG3NKqiVgatNCQ=
-github.com/gizak/termui v0.0.0-20190205041627-0278568ed80a/go.mod h1:TISPFiAGKVhyNxElRxDknJ+HzcUyO7sAJCsc8dfAe+M=
+github.com/gizak/termui/v3 v3.0.0 h1:NYTUG6ig/sJK05O5FyhWemwlVPO8ilNpvS/PgRtrKAE=
+github.com/gizak/termui/v3 v3.0.0/go.mod h1:uinu2dMdtMI+FTIdEFUJQT5y+KShnhQRshvPblXq3lY=
 github.com/go-ole/go-ole v1.2.2 h1:HXmymm3IQ8iAfpqlbbUGLHd+SZrnmI4y1pv+WL/3R7c=
 github.com/go-ole/go-ole v1.2.2/go.mod h1:7FAglXiTm7HKlQRDeOQ6ZNUHidzCWXuZWq/1dTyBNF8=
 github.com/kevinburke/ssh_config v0.0.0-20180830205328-81db2a75821e h1:RgQk53JHp/Cjunrr1WlsXSZpqXn+uREuHvUVcK82CV8=

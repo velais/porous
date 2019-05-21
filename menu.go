@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	. "github.com/gizak/termui"
+	. "github.com/gizak/termui/v3"
 	"image"
 )
 
@@ -30,7 +30,7 @@ func (self *Menu) TunnelToRow (tunnel *Tunnel) []Cell {
 
 	rowString := fmt.Sprintf("[%s](fg:%s) %-30v %-40v %-40v",
 		stateShape, stateColor, tunnel.Host, tunnel.Forward, tunnel.Hostname)
-	cells := ParseText(rowString, self.rowStyle)
+	cells := ParseStyles(rowString, self.rowStyle)
 
 	if len(cells) < self.Inner.Max.X {
 		padding := make([]Cell, self.Inner.Max.X - len(cells))
