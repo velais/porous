@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	ui "github.com/gizak/termui"
+	"github.com/gizak/termui/widgets"
 	"github.com/nsf/termbox-go"
+	"io"
 	"os"
 	"os/exec"
 )
@@ -46,7 +50,7 @@ func main() {
 	}
 	defer ui.Close()
 
-	render(appState)
+	renderMenu(appState)
 }
 
 var helpMsg = `porous - ssh tunnel manager
@@ -60,7 +64,13 @@ func printHelp() {
 	flag.PrintDefaults()
 }
 
-func render(as *AppState) {
+func renderClear() {
+	ui.Clear()
+	ui.Render()
+	_ = termbox.Sync()
+}
+
+func renderMenu(as *AppState) {
 	width, height := ui.TerminalDimensions()
 
 	l := NewMenu()
@@ -94,10 +104,17 @@ func render(as *AppState) {
 				ui.Clear()
 				ui.Render(l)
 			}
-		case "o":
+		case "o", "<Enter>":
 			selected := as.GetTunnels()[l.SelectedRow]
 			if selected.State == "Closed" {
-				openTunnel(selected)
+				renderClear()
+				err := openTunnel(selected)
+				renderClear()
+
+				if err != nil {
+					renderError(uiEvents, err)
+				}
+
 				as.ReloadTunnels()
 				l.Rows = as.GetTunnels()
 				ui.Clear()
@@ -119,24 +136,47 @@ func render(as *AppState) {
 
 }
 
-func openTunnel(tunnel *Tunnel) {
-	cmd := exec.Command("ssh", "-fN", tunnel.Host)
+func renderError(uiEvents <-chan ui.Event, err error) {
+	width, height := ui.TerminalDimensions()
+
+	p := widgets.NewParagraph()
+	p.Text = fmt.Sprintf("Tunnel failed to open with:\n" +
+		"[%s](fg:red)\n" +
+		"Press <Enter> to continue", err.Error())
+	p.SetRect(0, 0, width, height)
+	p.Border = false
+
 	ui.Clear()
-	ui.Render()
-	_ = termbox.Sync()
+	ui.Render(p)
 
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	for {
+		e := <-uiEvents
+		switch e.ID {
+		case "<Enter>", "q":
+			return
+		}
+	}
+}
 
-	defer func() {
-		ui.Clear()
-		ui.Render()
-		_ = termbox.Sync()
-	}()
+func openTunnel(tunnel *Tunnel) error {
+	var stderrBuf bytes.Buffer
+	cmd := exec.Command("ssh", "-fN", tunnel.Host)
+	stderrIn, _ := cmd.StderrPipe()
+	err := cmd.Start()
 
-	err := cmd.Run()
 	if err != nil {
 		panic(err)
 	}
+
+	go func() {
+		_, _ = io.Copy(&stderrBuf, stderrIn)
+	}()
+
+	err = cmd.Wait()
+
+	if err != nil {
+		return errors.New(string(stderrBuf.Bytes()))
+	}
+
+	return nil
 }
