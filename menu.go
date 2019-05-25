@@ -54,12 +54,8 @@ func (self *Menu) Draw(buf * Buffer) {
 
 		for j := 0; j < len(cells) && point.Y < self.Inner.Max.Y; j++ {
 			style := cells[j].Style
-			if row == self.SelectedRow {
-				if tunnel.State == "Open" {
-					style = Style{Bg: ColorGreen}
-				} else {
-					style = Style{Bg: ColorRed}
-				}
+			if row == self.SelectedRow && j >= 2 {
+				style = Style{Bg: ColorWhite}
 			}
 
 			buf.SetCell(NewCell(cells[j].Rune, style), point)
