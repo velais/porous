@@ -75,7 +75,7 @@ func renderMenu(as *AppState) {
 
 	l := NewMenu()
 	l.SelectedRow = 0
-	l.SetRect(0, -1, width, height)
+	l.SetRect(-1, -1, width, height) //Place at -1 to offset internal padding
 	l.Border = false
 	l.Rows = as.GetTunnels()
 
@@ -143,7 +143,7 @@ func renderError(uiEvents <-chan ui.Event, err error) {
 	p.Text = fmt.Sprintf("Tunnel failed to open with:\n" +
 		"[%s](fg:red)\n" +
 		"Press <Enter> to continue", err.Error())
-	p.SetRect(0, 0, width, height)
+	p.SetRect(-1, -1, width, height) //Place at -1 to offset internal padding
 	p.Border = false
 
 	ui.Clear()
