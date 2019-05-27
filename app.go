@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"github.com/kevinburke/ssh_config"
 	"github.com/shirou/gopsutil/process"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 type AppState struct {
@@ -50,36 +52,50 @@ func load() []*Tunnel {
 
 	var tunnels []*Tunnel
 	for _, host := range cfg.Hosts {
+		var fwdNodes []*ssh_config.KV
 		for _, node := range host.Nodes {
 			if r.MatchString(node.String()) {
-
-				alias := host.Patterns[0].String()
-				hostname, err := cfg.Get(host.Patterns[0].String(), "Hostname")
-				if err != nil {
-					break
+				switch t := node.(type) {
+				case *ssh_config.KV:
+					fwdNodes = append(fwdNodes, t)
+				default:
+					continue
 				}
-
-				localFwd, err := cfg.Get(alias, "LocalForward")
-				remoteFwd, err := cfg.Get(alias, "RemoteForward")
-
-				proc := FindProcs(procs, alias)
-				tunnel := Tunnel{
-					Host:     alias,
-					Hostname: hostname,
-					Forward:  localFwd + remoteFwd,
-				}
-
-				if proc != nil {
-					tunnel.Proc = proc
-					tunnel.State = "Open"
-				} else {
-					tunnel.State = "Closed"
-				}
-
-				tunnels = append(tunnels, &tunnel)
 			}
 		}
-	}
 
+		if len(fwdNodes) > 0 {
+			alias := host.Patterns[0].String()
+			hostname, err := cfg.Get(host.Patterns[0].String(), "Hostname")
+
+			if err != nil {
+				break
+			}
+
+			var fwdStrs []string
+			for _, fwd := range fwdNodes {
+				fwdStrs = append(fwdStrs, fmt.Sprintf("-%s %s", string(fwd.Key[0]), fwd.Value))
+			}
+
+
+
+			proc := FindProcs(procs, alias)
+			tunnel := Tunnel{
+				Host:     alias,
+				Hostname: hostname,
+				Forward: strings.Join(fwdStrs, " "),
+			}
+
+			if proc != nil {
+				tunnel.Proc = proc
+				tunnel.State = "Open"
+			} else {
+				tunnel.State = "Closed"
+			}
+
+			tunnels = append(tunnels, &tunnel)
+		}
+
+	}
 	return tunnels
 }

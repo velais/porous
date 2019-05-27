@@ -23,13 +23,17 @@ func NewMenu() *Menu {
 func (self *Menu) TunnelToRow (tunnel *Tunnel) []Cell {
 	stateColor := "red"
 	stateShape := "\u25A3"
+
 	if tunnel.State == "Open" {
 		stateColor = "green"
 		stateShape = "\u25C8"
 	}
 
-	rowString := fmt.Sprintf("[%s](fg:%s) %-30v %-40v %-40v",
-		stateShape, stateColor, tunnel.Host, tunnel.Forward, tunnel.Hostname)
+	rowString := fmt.Sprintf("[%s](fg:%s) %-30v %-40s %-40s",
+		stateShape, stateColor,
+		truncateString(tunnel.Host, 30),
+		truncateString(tunnel.Forward, 40),
+		truncateString(tunnel.Hostname, 40))
 	cells := ParseStyles(rowString, self.rowStyle)
 
 	if len(cells) < self.Inner.Max.X {
@@ -84,3 +88,13 @@ func (self *Menu) ScrollDown() {
 	self.ScrollBy(1)
 }
 
+func truncateString (s string, l int) string {
+	truncd := s
+	if len(s) > l {
+		if l > 3 {
+			l -= 3
+		}
+		truncd = s[0:l]  + "..."
+	}
+	return truncd
+}
