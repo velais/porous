@@ -23,30 +23,49 @@ type Tunnel struct {
 	Proc        *process.Process
 }
 
-func NewAppState() *AppState {
-	as := AppState{
-		tunnels: load(),
+func NewAppState() (*AppState, error) {
+	tunnels, err := load()
+	if err != nil {
+		return nil, err
 	}
-	return &as
+
+	as := AppState{
+		tunnels: tunnels,
+	}
+	return &as, nil
 }
 
-func (as *AppState) ReloadTunnels() {
-	as.tunnels = load()
+func (as *AppState) ReloadTunnels() error {
+	tunnels, err := load()
+	if err != nil {
+		return err
+	}
+	as.tunnels = tunnels
+	return nil
 }
 
 func (as *AppState) GetTunnels() []*Tunnel {
 	return as.tunnels
 }
 
-func load() []*Tunnel {
+func load() ([]*Tunnel, error) {
 	pids := FindAll("ssh")
 	var procs []*process.Process
 	for _, pid := range pids {
 		proc, _ := process.NewProcess(int32(pid))
 		procs = append(procs, proc)
 	}
-	f, _ := os.Open(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
-	cfg, _ := ssh_config.Decode(f)
+
+	f, err := os.Open(filepath.Join(os.Getenv("HOME"), ".ssh", "config"))
+	if err != nil {
+		return nil, fmt.Errorf("could not open ssh config\n %s", err)
+	}
+
+	cfg, err := ssh_config.Decode(f)
+	if err != nil {
+		return nil, fmt.Errorf("could not decode ssh config:\n %s", err)
+	}
+
 
 	r := regexp.MustCompile(".*(LocalForward|RemoteForward).*")
 
@@ -97,5 +116,5 @@ func load() []*Tunnel {
 		}
 
 	}
-	return tunnels
+	return tunnels, nil
 }

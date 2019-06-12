@@ -9,6 +9,7 @@ import (
 	"github.com/gizak/termui/v3/widgets"
 	"github.com/nsf/termbox-go"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 )
@@ -16,6 +17,8 @@ import (
 var (
 	version    = "0.0.1"
 	versionStr = fmt.Sprintf("porous %v", version)
+
+	stderrLogger = log.New(os.Stderr, "", 0)
 )
 
 func main() {
@@ -38,15 +41,18 @@ func main() {
 
 	_, err := exec.LookPath("ssh")
 	if err != nil {
-		panic(err)
+		stderrLogger.Fatalf("failed to initialize porous: %v", err)
 	}
 
-	appState := NewAppState()
+	appState, err := NewAppState()
+	if err != nil {
+		stderrLogger.Fatalf("failed to initialize porous: %v", err)
+	}
 
 	//UI
 	err = ui.Init()
 	if err != nil {
-		panic(err)
+		stderrLogger.Fatalf("failed to initialize termui: %v", err)
 	}
 	defer ui.Close()
 
@@ -62,6 +68,11 @@ options:`
 func printHelp() {
 	fmt.Println(helpMsg)
 	flag.PrintDefaults()
+}
+
+func errExit(msg string, err error) {
+	renderClear()
+	stderrLogger.Fatalf("%s: %v", msg, err)
 }
 
 func renderClear() {
@@ -96,10 +107,10 @@ func renderMenu(as *AppState) {
 		case "x":
 			selected := as.GetTunnels()[l.SelectedRow]
 			if selected.State == "Open" {
-				err := selected.Proc.Kill()
-				if err != nil {
+				_ = selected.Proc.Kill()
+				if err := as.ReloadTunnels(); err != nil {
+					errExit("failed to reload", err)
 				}
-				as.ReloadTunnels()
 				l.Rows = as.GetTunnels()
 				ui.Clear()
 				ui.Render(l)
@@ -108,20 +119,21 @@ func renderMenu(as *AppState) {
 			selected := as.GetTunnels()[l.SelectedRow]
 			if selected.State == "Closed" {
 				renderClear()
-				err := openTunnel(selected)
-				renderClear()
-
-				if err != nil {
-					renderError(uiEvents, err)
+				if err := openTunnel(selected); err != nil {
+					renderOpenError(uiEvents, err)
 				}
-
-				as.ReloadTunnels()
+				renderClear()
+				if err := as.ReloadTunnels(); err != nil {
+					errExit("failed to reload", err)
+				}
 				l.Rows = as.GetTunnels()
 				ui.Clear()
 				ui.Render(l)
 			}
 		case "r":
-			as.ReloadTunnels()
+			if err := as.ReloadTunnels(); err != nil {
+				errExit("failed to reload", err)
+			}
 			l.Rows = as.GetTunnels()
 			ui.Render(l)
 		}
@@ -136,7 +148,7 @@ func renderMenu(as *AppState) {
 
 }
 
-func renderError(uiEvents <-chan ui.Event, err error) {
+func renderOpenError(uiEvents <-chan ui.Event, err error) {
 	width, height := ui.TerminalDimensions()
 
 	p := widgets.NewParagraph()
