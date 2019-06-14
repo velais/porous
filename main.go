@@ -84,13 +84,13 @@ func renderClear() {
 func renderMenu(as *AppState) {
 	width, height := ui.TerminalDimensions()
 
-	l := NewMenu()
-	l.SelectedRow = 0
-	l.SetRect(-1, -1, width, height) //Place at -1 to offset internal padding
-	l.Border = false
-	l.Rows = as.GetTunnels()
+	menu := NewMenu()
+	menu.SelectedRow = 0
+	menu.SetRect(-1, -1, width, height) //Place at -1 to offset internal padding
+	menu.Border = false
+	menu.Rows = as.GetTunnels()
 
-	ui.Render(l)
+	ui.Render(menu)
 
 	uiEvents := ui.PollEvents()
 	for {
@@ -99,53 +99,47 @@ func renderMenu(as *AppState) {
 		case "q":
 			return
 		case "k", "<Up>":
-			l.ScrollUp()
-			ui.Render(l)
+			menu.ScrollUp()
+			ui.Render(menu)
 		case "j", "<Down>":
-			l.ScrollDown()
-			ui.Render(l)
+			menu.ScrollDown()
+			ui.Render(menu)
 		case "x":
-			selected := as.GetTunnels()[l.SelectedRow]
+			selected := as.GetTunnels()[menu.SelectedRow]
 			if selected.State == "Open" {
 				_ = selected.Proc.Kill()
-				if err := as.ReloadTunnels(); err != nil {
-					errExit("failed to reload", err)
-				}
-				l.Rows = as.GetTunnels()
-				ui.Clear()
-				ui.Render(l)
+				reloadMenu(as, menu)
 			}
 		case "o", "<Enter>":
-			selected := as.GetTunnels()[l.SelectedRow]
+			selected := as.GetTunnels()[menu.SelectedRow]
 			if selected.State == "Closed" {
 				renderClear()
 				if err := openTunnel(selected); err != nil {
 					renderOpenError(uiEvents, err)
 				}
-				renderClear()
-				if err := as.ReloadTunnels(); err != nil {
-					errExit("failed to reload", err)
-				}
-				l.Rows = as.GetTunnels()
-				ui.Clear()
-				ui.Render(l)
+				reloadMenu(as, menu)
 			}
 		case "r":
-			if err := as.ReloadTunnels(); err != nil {
-				errExit("failed to reload", err)
-			}
-			l.Rows = as.GetTunnels()
-			ui.Render(l)
+			reloadMenu(as, menu)
 		}
 
 		if e.Type == ui.ResizeEvent {
 			width, height = ui.TerminalDimensions()
-			l.SetRect(0, -1, width, height)
-			l.Rows = as.GetTunnels()
-			ui.Render(l)
+			menu.SetRect(0, -1, width, height)
+			menu.Rows = as.GetTunnels()
+			ui.Render(menu)
 		}
 	}
 
+}
+
+func reloadMenu(as *AppState, menu *Menu) {
+	if err := as.ReloadTunnels(); err != nil {
+		errExit("failed to reload", err)
+	}
+	menu.Rows = as.GetTunnels()
+	ui.Clear()
+	ui.Render(menu)
 }
 
 func renderOpenError(uiEvents <-chan ui.Event, err error) {

@@ -47,7 +47,7 @@ Host tunnel-2
 
 ## Todo...
 
-- [ ] Better error messages when ssh/ssh_config cannot be found
+- [x] Better error messages when ssh/ssh_config cannot be found
 - [ ] Handle ctrl-c to cancel password prompt
 - [ ] Show "loading" screen when waiting on ssh to finish
 - [ ] Info screen to display full config for a host
