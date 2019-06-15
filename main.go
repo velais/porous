@@ -121,6 +121,10 @@ func renderMenu(as *AppState) {
 			}
 		case "r":
 			reloadMenu(as, menu)
+		case "i":
+			selected := as.GetTunnels()[menu.SelectedRow]
+			renderInfo(uiEvents, selected)
+			reloadMenu(as, menu)
 		}
 
 		if e.Type == ui.ResizeEvent {
@@ -140,6 +144,31 @@ func reloadMenu(as *AppState, menu *Menu) {
 	menu.Rows = as.GetTunnels()
 	ui.Clear()
 	ui.Render(menu)
+}
+
+func renderInfo(uiEvents <-chan ui.Event, tunnel *Tunnel) {
+	width, height := ui.TerminalDimensions()
+
+	t := "Host " + tunnel.Host + "\n"
+	for _, node := range tunnel.Raw {
+		t = t + node.String() + "\n"
+	}
+
+	p := widgets.NewParagraph()
+	p.SetRect(-1, -1, width, height) //Place at -1 to offset internal padding
+	p.Border =  false
+	p.Text = t
+
+	ui.Clear()
+	ui.Render(p)
+
+	for {
+		e := <-uiEvents
+		switch e.ID {
+		case "q":
+			return
+		}
+	}
 }
 
 func renderOpenError(uiEvents <-chan ui.Event, err error) {

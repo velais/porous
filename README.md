@@ -42,13 +42,14 @@ Host tunnel-2
 | open    | <kbd>o</kbd> / <kbd>enter</kbd>|
 | close   | <kbd>x</kdb>                   |
 | reload  | <kbd>r</kdb>                   |
+| info    | <kbd>i</kdb>                   |
 | exit    | <kbd>q</kdb>                   | 
 
 
 ## Todo...
 
 - [x] Better error messages when ssh/ssh_config cannot be found
+- [x] Info screen to display full config for a host
 - [ ] Handle ctrl-c to cancel password prompt
 - [ ] Show "loading" screen when waiting on ssh to finish
-- [ ] Info screen to display full config for a host
 - [ ] Customize ssh command used?

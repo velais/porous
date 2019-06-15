@@ -20,6 +20,7 @@ type Tunnel struct {
 	Forward     string
 	ForwardKind string
 	State       string
+	Raw         []ssh_config.Node
 	Proc        *process.Process
 }
 
@@ -103,6 +104,7 @@ func load() ([]*Tunnel, error) {
 				Host:     alias,
 				Hostname: hostname,
 				Forward: strings.Join(fwdStrs, " "),
+				Raw: host.Nodes,
 			}
 
 			if proc != nil {
