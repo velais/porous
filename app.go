@@ -50,7 +50,11 @@ func (as *AppState) GetTunnels() []*Tunnel {
 }
 
 func load() ([]*Tunnel, error) {
-	pids := FindAll("ssh")
+	pids, err := FindAll("ssh")
+	if err != nil {
+		return nil, err
+	}
+
 	var procs []*process.Process
 	for _, pid := range pids {
 		proc, _ := process.NewProcess(int32(pid))
@@ -99,7 +103,10 @@ func load() ([]*Tunnel, error) {
 
 
 
-			proc := FindProcs(procs, alias)
+			proc, err := FindProcByCmd(procs, alias)
+			if err != nil {
+				return nil, err
+			}
 			tunnel := Tunnel{
 				Host:     alias,
 				Hostname: hostname,
