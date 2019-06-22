@@ -2,6 +2,8 @@
 
 A text-mode interface for managing ssh tunnels.
 
+![porous](_assets/demo.gif)
+
 
 ## Install
 
