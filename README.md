@@ -11,7 +11,6 @@ You will need `go` installed and `GOBIN` in your `PATH`.
 
     go get -u github.com/velais/porous
 
-
 ## Config
 
 Porous relies on your ~/.ssh/config. It looks for hosts that have a LocalForward or RemoteForward.
@@ -52,6 +51,9 @@ Host tunnel-2
 
 - [x] Better error messages when ssh/ssh_config cannot be found
 - [x] Info screen to display full config for a host
+- [ ] Specify config location
+- [ ] Support ssh config includes
 - [ ] Handle ctrl-c to cancel password prompt
 - [ ] Show "loading" screen when waiting on ssh to finish
 - [ ] Customize ssh command used?
+- [ ] Ordering - state/name/host
